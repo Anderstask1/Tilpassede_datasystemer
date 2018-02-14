@@ -1,4 +1,4 @@
-# Heislab SingBoys
+# Heislab SingSing
 
 Sykt kult prosjekt
 
