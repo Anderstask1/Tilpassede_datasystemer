@@ -24,7 +24,7 @@ int main() {
         // Stop elevator and exit program if the stop button is pressed
         if (elev_get_stop_signal()) {
             elev_set_motor_direction(DIRN_STOP);
-            break;
+            // break; // TEST TEST TEST
         }
         //Test
         int button_value;
