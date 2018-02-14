@@ -1,0 +1,17 @@
+### Apple related files ###
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Files that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+
+
+### Linux files ###
+# Linux trash folder which might appear on any partition or disk
+.Trash-*
