@@ -1,6 +1,5 @@
 #include "elev.h"
 #include <stdio.h>
-#include "elev.c"
 
 
 int main() {
