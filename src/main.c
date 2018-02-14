@@ -31,7 +31,7 @@ int main() {
         for(int button = 0; button < N_BUTTONS; button++){
           for(int floor = 0; floor < N_FLOORS; floor++) {
             button_value = elev_get_button_signal(button,floor);
-            fprintf("%d\n", button_value);
+            printf("%d\n", button_value);
           }
         }
     }
