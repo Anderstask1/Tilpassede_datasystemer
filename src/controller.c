@@ -5,8 +5,8 @@
 #include <assert.h>
 #include <stdlib.h>
 
-//put up and down values in array
-int up_down_floor[N_FLOORS][2];
+//TEST, put up and down values in array
+int up_down_floor[N_FLOORS][2] = {0};
 for(int button = 0; button < N_BUTTONS; button++){
   for(int floor = 0; floor < N_FLOORS; floor++) {
     if(!((floor == N_FLOORS-1 && button == BUTTON_CALL_UP) || (floor == 0 && button == BUTTON_CALL_DOWN))) {//Impossible to call elevator up when on top, or call elevator down when on bottom
@@ -28,8 +28,8 @@ for(int button = 0; button < N_BUTTONS; button++){
   }
 }
 
-for(int i = 0; i < N_FLOORS, i++) {
-    printf("d", up_down_floor[i][0]);
-    printf("d\n --------------- \n", up_down_floor[i][1]);
+for(int i = N_FLOORS-1; i >= 0; i--) {
+    printf("%d", up_down_floor[i][0]);
+    printf("%d\n", up_down_floor[i][1]);
   }
-}
+printf("\n----------------\n",0);

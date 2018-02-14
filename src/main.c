@@ -26,9 +26,8 @@ int main() {
             elev_set_motor_direction(DIRN_STOP);
             break;
         }
-
         //TEST, put up and down values in array
-        int up_down_floor[N_FLOORS][2];
+        int up_down_floor[N_FLOORS][2] = {0};
         for(int button = 0; button < N_BUTTONS; button++){
           for(int floor = 0; floor < N_FLOORS; floor++) {
             if(!((floor == N_FLOORS-1 && button == BUTTON_CALL_UP) || (floor == 0 && button == BUTTON_CALL_DOWN))) {//Impossible to call elevator up when on top, or call elevator down when on bottom
@@ -50,11 +49,11 @@ int main() {
           }
         }
 
-        for(int i = 0; i < N_FLOORS; i++) {
+        for(int i = N_FLOORS-1; i >= 0; i--) {
             printf("%d", up_down_floor[i][0]);
             printf("%d\n", up_down_floor[i][1]);
           }
-          printf("%d\n----------------\n",0);
+        printf("\n----------------\n",0);
     }
     return 0;
 }
