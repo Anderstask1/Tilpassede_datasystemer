@@ -22,6 +22,7 @@ int main() {
         }
 
         // Stop elevator and exit program if the stop button is pressed
+        // The stop button is a little bit unstable. Some times it stops the program instantaneously
         if (elev_get_stop_signal()) {
             elev_set_motor_direction(DIRN_STOP);
             break;
