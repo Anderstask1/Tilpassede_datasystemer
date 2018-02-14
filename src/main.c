@@ -30,8 +30,10 @@ int main() {
         int button_value;
         for(int button = 0; button < N_BUTTONS; button++){
           for(int floor = 0; floor < N_FLOORS; floor++) {
-            button_value = elev_get_button_signal(button,floor);
-            printf("%d\n", button_value);
+            if(!((floor == N_FLOORS-1 && button == BUTTON_CALL_UP) || (floor == 0 && button == BUTTON_CALL_DOWN))) {//Impossible to call elevator up when on top, or call elevator down when on bottom
+              button_value = elev_get_button_signal(button,floor);
+              printf("%d\n", button_value);
+            }
           }
         }
     }
