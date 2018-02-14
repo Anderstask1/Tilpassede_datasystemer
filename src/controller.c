@@ -6,7 +6,7 @@
 #include <stdlib.h>
 
 //TEST, put up and down values in array
-int up_down_floor[N_FLOORS][2] = {0};
+//int up_down_floor[N_FLOORS][2] = {0}; GLOBAL VARIABEL
 for(int button = 0; button < N_BUTTONS; button++){
   for(int floor = 0; floor < N_FLOORS; floor++) {
     if(!((floor == N_FLOORS-1 && button == BUTTON_CALL_UP) || (floor == 0 && button == BUTTON_CALL_DOWN))) {//Impossible to call elevator up when on top, or call elevator down when on bottom
