@@ -54,7 +54,7 @@ int main() {
             printf("%d", up_down_floor[i][0]);
             printf("%d\n", up_down_floor[i][1]);
           }
-          printf("%d\n----------------\n",0)
+          printf("%d\n----------------\n",0);
     }
     return 0;
 }
