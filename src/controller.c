@@ -5,9 +5,11 @@
 #include <assert.h>
 #include <stdlib.h>
 
-//TEST, put up and down values in array
+//declare pointer to array of orders
 static int up_down_floor[N_FLOORS][2] = {0};
+int (*up_down_floor_ptr)[N_FLOORS][2] = &up_down_floor;
 
+//set values to array of orders
 void button_read(){
   for(int button = 0; button < N_BUTTONS; button++){
     for(int floor = 0; floor < N_FLOORS; floor++) {
@@ -31,18 +33,14 @@ void button_read(){
   }
 }
 
-int get_up_down_floor(){
-  return up_down_floor;
+/get array of orders
+int * get_up_down_floor(){
+  return *up_down_floor;
 }
 
+//print matrix
 for(int i = N_FLOORS-1; i >= 0; i--) {
     printf("%d", up_down_floor[i][0]);
     printf("%d\n", up_down_floor[i][1]);
   }
 printf("\n----------------\n",0);
-
-int illuminate_lights(const int button_array[][], int lengt_button_array){
-  for(){
-
-  }
-}
