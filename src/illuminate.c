@@ -1,7 +1,8 @@
 #include "channels.h"
 #include "elev.h"
 #include "io.h"
-#include "controller.c"
+#include "controller.h"
+#include "illuminate.h"
 
 // Funksjonen er skrevet med &. Tanken er at den skal ta inn en referanse
 int illuminate_lights(const int &button_array[][], const int n_floors){
