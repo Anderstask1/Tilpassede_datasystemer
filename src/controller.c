@@ -40,7 +40,7 @@ int * get_up_down_floor(){
   return *up_down_floor;
 }
 
-elev_motor_direction_t get_motor_direction(void) {
+elev_motor_direction_t get_motor_d*motor_direction = dirn;irection(void) {
   return motor_direction;
 }
 
@@ -51,7 +51,7 @@ void set_motor_direction(elev_motor_direction_t dirn) {
 
 void set_previous_floor_sensor_signal(int &previous_floor_sensor_signal) {
   int temp = elev_get_floor_sensor_signal();
-  if(temp =! -1) {
+  if(temp != -1) {
     previous_floor_sensor_signal = temp;
   }
 }
@@ -65,22 +65,35 @@ printf("\n----------------\n",0);
 
 void controll_elevator_orders(void) {
   bool comming_orders = 0;
-  if (motor_direction == DIRN_UP && comming_orders) {
+  motor_direction = DIRN_UP;
+  if (motor_direction == DIRN_UP && !comming_orders) {
     for (int i = *previous_floor_sensor_signal; i < N_FLOORS; i++) {
       if(elev_get_floor_sensor_signal() == up_down_floor[i][1]) {
         //åpne dør 3 sek og null ordelisten i etasje i
       }
       if(up_down_floor[i][1]) {
-        //kjør til etasje i
+        set_motor_direction(DIRN_UP);
+        // Hvis heisen er på grensen til ny etasje så skal den ikke snu.
         comming_orders = 1;
       }
     }
     if(!comming_orders) {
-      set_motor_direction(DIRN_DOWN);
+      motor_direction = DIRN_DOWN;
     }
   }
   if(motor_direction == DIRN_DOWN) {
+    for (int i = *previous_floor_sensor_signal; i >= 0; i--) {
+      if(elev_get_floor_sensor_signal() > -1 && up_down_floor[i][0]) {
 
+      }
+      if(up_down_floor[i][0]) {
+        set_motor_direction(DIRN_DOWN);
+        // Hvis heisen er på grensen til ny etasje så skal den ikke snu.
+        comming_orders = 1;
+      }
+  }
+  if(!comming_orders && elev_get_floor_sensor_signal != 0) {
+    //kjør til 1. etasje
   }
 
 }
