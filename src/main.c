@@ -13,6 +13,11 @@ int main() {
 
     elev_set_motor_direction(DIRN_UP);
 
+    int up_down_floor[N_FLOORS][2] = {0};
+
+    int *up_down_floor;
+    up_down_floor = new int up_down_floor[N_FLOORS][2];
+
     while (1) {
         // Change direction when we reach top/bottom floor
         if (elev_get_floor_sensor_signal() == N_FLOORS - 1) {
@@ -22,21 +27,38 @@ int main() {
         }
 
         // Stop elevator and exit program if the stop button is pressed
+        // The stop button is a little bit unstable. Some times it stops the program instantaneously
         if (elev_get_stop_signal()) {
             elev_set_motor_direction(DIRN_STOP);
             break;
         }
-        //Test
-        int button_value;
+        //TEST, put up and down values in array
         for(int button = 0; button < N_BUTTONS; button++){
           for(int floor = 0; floor < N_FLOORS; floor++) {
             if(!((floor == N_FLOORS-1 && button == BUTTON_CALL_UP) || (floor == 0 && button == BUTTON_CALL_DOWN))) {//Impossible to call elevator up when on top, or call elevator down when on bottom
-              button_value = elev_get_button_signal(button,floor);
-              printf("%d\n", button_value);
+              if(button == BUTTON_CALL_DOWN && elev_get_button_signal(button,floor)) {
+                up_down_floor[floor][0] = 1;
+              }
+              if(button == BUTTON_CALL_UP && elev_get_button_signal(button,floor)) {
+                up_down_floor[floor][1] = 1;
+              }
+              if(button == BUTTON_COMMAND && elev_get_button_signal(button,floor)){
+                if(floor == 1 || floor == 2 || floor == 3) {
+                  up_down_floor[floor][0] = 1;
+                }
+                if(floor == 0 || floor == 1 || floor == 2) {
+                  up_down_floor[floor][1] = 1;
+                }
+              }
             }
           }
         }
-    }
 
+        for(int i = N_FLOORS-1; i >= 0; i--) {
+            printf("%d", up_down_floor[i][0]);
+            printf("%d\n", up_down_floor[i][1]);
+          }
+        printf("\n----------------\n",0);
+    }
     return 0;
 }
