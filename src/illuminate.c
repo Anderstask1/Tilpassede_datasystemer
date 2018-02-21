@@ -5,23 +5,19 @@
 #include "illuminate.h"
 
 // Funksjonen er skrevet med &. Tanken er at den skal ta inn en referanse
-int illuminate_lights(const int &button_array[][], const int n_floors){
-  const int width = 2;
-
-
+void illuminate_lights(const int button_array[N_FLOORS][2], const int n_floors){
 
   for (int current_floor = 0; current_floor < n_floors; current_floor++) {
 
-
     // Floor btn direction up
-    if((button_array[current_floor][0])&& (current_floor < n_floors-1)){
+    if((button_array[current_floor][0]) && (current_floor < n_floors-1)){
       elev_set_button_lamp(BUTTON_CALL_UP, current_floor, 1);
     } else {
       elev_set_button_lamp(BUTTON_CALL_UP, current_floor, 0);
     }
 
     // Floor btn direction down
-    if((button_array[current_floor][1]) && (curront_floor > 0)){
+    if((button_array[current_floor][1]) && (current_floor > 0)){
       elev_set_button_lamp(BUTTON_CALL_DOWN, current_floor, 1);
     } else {
       elev_set_button_lamp(BUTTON_CALL_DOWN, current_floor, 0);

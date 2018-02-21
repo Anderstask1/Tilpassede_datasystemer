@@ -15,3 +15,9 @@ void set_previous_floor_sensor_signal(int *previous_floor_sensor_signal);
 
 //function that controll the movement of the elevator, and controll the orders
 void controll_elevator_orders(void);
+
+//put values in up_down_floor matrix, watching buttons
+void watch_buttons(void);
+
+//print matrix for debugging
+void print_up_down_floor_values(void);
