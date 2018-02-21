@@ -15,8 +15,8 @@ int main() {
 
     int up_down_floor[N_FLOORS][2] = {0};
 
-    int *up_down_floor;
-    up_down_floor = new int up_down_floor[N_FLOORS][2];
+    int *up_down_floor_ptr;
+    up_down_floor_ptr = &up_down_floor[N_FLOORS][2];
 
     while (1) {
         // Change direction when we reach top/bottom floor
