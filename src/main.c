@@ -28,9 +28,9 @@ int main() {
       //print i for debugging
       //printf("While number %d\n", counter);
 
-      illuminate_lights();
-
       watch_buttons();
+
+      illuminate_lights();
 
       controll_elevator_orders();
 
