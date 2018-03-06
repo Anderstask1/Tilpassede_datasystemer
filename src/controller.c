@@ -104,6 +104,7 @@ void controll_elevator_orders(void) {
       if(elev_get_floor_sensor_signal() == up_down_floor[i][1]) {
           clear_current_floor(i);
         //åpne dør 3 sek og null ordelisten i etasje i
+        
       }
       if(up_down_floor[i][1]) {
         set_motor_direction(DIRN_UP);
