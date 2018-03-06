@@ -26,7 +26,7 @@ void button_read(){
         }
         if(button == BUTTON_CALL_UP && elev_get_button_signal(button,floor)) {
           up_down_floor[floor][1] = 1;
-        }
+      }
         if(button == BUTTON_COMMAND && elev_get_button_signal(button,floor)){
           if(floor == 1 || floor == 2 || floor == 3) {
             up_down_floor[floor][0] = 1;
@@ -130,27 +130,33 @@ void stop_signal_status(void) {
 }
 
 //åpner døren i 3 sek
+
 void open_door_timer(void) {
 	clock_t start_t, current_t;
 	start_t = clock();
-	int msec = 0, trigger = 3; // 3ms
-
+	int msec = 0, trigger = 1500; // 3ms
+    set_motor_direction(DIRN_STOP);
 	do {
 		io_set_bit(LIGHT_DOOR_OPEN);
 		current_t = clock() - start_t;
 		msec = current_t * 1000 / CLOCKS_PER_SEC;
-        set_motor_direction(DIRN_STOP);
 	} while (msec < trigger);
 	io_clear_bit(LIGHT_DOOR_OPEN);
 }
+
+/*
+void open_door_timer(void){
+    set_motor_direction(DIRN_STOP);
+    elev_set_door_open_lamp(1);
+    delay(3000);
+    elev_set_door_open_lamp(0);
+}
+*/
 
 //function that controll the movement of the elevator, and controll the orders
 void controll_elevator_orders(void) {
   int comming_orders = 0;
   motor_direction = current_motor_direction;
-  printf("%d\n", motor_direction);
-  printf("%s\n", "VVVVVVVVVVVVVVVV");
-  printf("%d\n", current_motor_direction);
   if ((motor_direction == DIRN_UP || motor_direction == DIRN_STOP) && !comming_orders) {
     for (int i = previous_floor_sensor_signal; i < N_FLOORS; i++) {
       if(elev_get_floor_sensor_signal() != -1 && up_down_floor[previous_floor_sensor_signal][1]) {
@@ -179,7 +185,6 @@ void controll_elevator_orders(void) {
     }
   }
   if(motor_direction == DIRN_DOWN) {
-      printf("%s\n", "motherfucker1------");
     for(int i = previous_floor_sensor_signal; i >= 0; i--) {
       if(elev_get_floor_sensor_signal() > -1 && up_down_floor[previous_floor_sensor_signal][0]) {
           clear_current_floor(i);
@@ -187,7 +192,6 @@ void controll_elevator_orders(void) {
       }
       if(up_down_floor[i][0]) {
         set_motor_direction(DIRN_DOWN);
-        printf("%s\n", "motherfucker2------");
         // Hvis heisen er på grensen til ny etasje så skal den ikke snu.
         comming_orders = 1;
       }
@@ -199,14 +203,12 @@ void controll_elevator_orders(void) {
         }
         if(up_down_floor[i][1]) {
           set_motor_direction(DIRN_DOWN);
-          printf("%s\n", "motherfucker3------");
           // Hvis heisen er på grensen til ny etasje så skal den ikke snu.
           comming_orders = 1;
         }
     }
   }
   if(!comming_orders) {
-      printf("%s\n", "motherfucker4------");
       if(elev_get_floor_sensor_signal() != 0){
           set_motor_direction(DIRN_DOWN);
       }else{
