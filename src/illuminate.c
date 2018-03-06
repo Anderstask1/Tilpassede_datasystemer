@@ -13,8 +13,6 @@ void illuminate_lights(void){
 
     // int get_up_down_floor(int floor, int direction)
 
-    // Dirty fix. Vi kaller en posisjon i arrayet som alltid vil være null i 4. og i 1. etg.
-
     // Floor btn direction up
     if(current_floor < N_FLOORS-1) {
         if(get_up_down_floor(current_floor, 1)){
@@ -25,7 +23,6 @@ void illuminate_lights(void){
     }
 
     // Floor btn direction down
-
     if(current_floor > 0) {
         if(get_up_down_floor(current_floor, 0)){
           elev_set_button_lamp(BUTTON_CALL_DOWN, current_floor, 1);
