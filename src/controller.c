@@ -9,7 +9,7 @@
 //declare pointer to array of orders
 static int up_down_floor[N_FLOORS][2] = {0};
 
-static int previous_floor_sensor_signal = NULL;
+static int previous_floor_sensor_signal = 0;
 static elev_motor_direction_t motor_direction = DIRN_STOP;
 
 
@@ -91,12 +91,18 @@ void watch_buttons(void) {
   }
 }
 
+void clear_current_floor(int current_floor){
+    up_down_floor[current_floor][0] = 0;
+    up_down_floor[current_floor][1] = 0;
+}
+
 void controll_elevator_orders(void) {
   int comming_orders = 0;
   motor_direction = DIRN_UP;
   if (motor_direction == DIRN_UP && !comming_orders) {
     for (int i = previous_floor_sensor_signal; i < N_FLOORS; i++) {
       if(elev_get_floor_sensor_signal() == up_down_floor[i][1]) {
+          clear_current_floor(i);
         //åpne dør 3 sek og null ordelisten i etasje i
       }
       if(up_down_floor[i][1]) {
@@ -105,6 +111,17 @@ void controll_elevator_orders(void) {
         comming_orders = 1;
       }
     }
+    for(int i = N_FLOORS; i > previous_floor_sensor_signal; i--) {
+        if(elev_get_floor_sensor_signal() == up_down_floor[i][0]) {
+            clear_current_floor(i);
+          //åpne dør 3 sek og null ordelisten i etasje i
+        }
+        if(up_down_floor[i][0]) {
+          set_motor_direction(DIRN_UP);
+          // Hvis heisen er på grensen til ny etasje så skal den ikke snu.
+          comming_orders = 1;
+        }
+    }
     if(!comming_orders) {
       motor_direction = DIRN_DOWN;
     }
@@ -112,7 +129,8 @@ void controll_elevator_orders(void) {
   if(motor_direction == DIRN_DOWN) {
     for (int i = previous_floor_sensor_signal; i >= 0; i--) {
       if(elev_get_floor_sensor_signal() > -1 && up_down_floor[i][0]) {
-
+          clear_current_floor(i);
+        //åpne dør 3 sek og null ordelisten i etasje i
       }
       if(up_down_floor[i][0]) {
         set_motor_direction(DIRN_DOWN);
@@ -122,6 +140,6 @@ void controll_elevator_orders(void) {
     }
   }
   if(!comming_orders && elev_get_floor_sensor_signal() != 0) {
-    //kjør til 1. etasje
+    //kjør til 1. etasje for "parkering"
   }
 }
