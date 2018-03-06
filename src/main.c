@@ -28,7 +28,7 @@ int main() {
       //print i for debugging
       //printf("While number %d\n", counter);
 
-      illuminate_lights(get_up_down_floor(),N_FLOORS);
+      illuminate_lights();
 
       watch_buttons();
 
