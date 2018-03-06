@@ -111,29 +111,22 @@ void clear_current_floor(int current_floor){
 //reset entire up_down_floor matrix
 void reset_orders(void) {
 	for (int i = 0; i < N_FLOORS; i++) {
-		for (int j = 0; i < 2; i++) {
-			if ((i != 0 && j != 0) && (i != (N_FLOORS - 1) && j != 1)) {
-				up_down_floor[i][j] = 0;
-			}
-		}
+		clear_current_floor(i);
 	}
 }
 
 //stopper heisen når stoppknappen er inne, og åpner dørene hvis den er i en etasje
 void stop_signal_status(void) {
-	if (!elev_get_stop_signal()) {
-		elev_set_stop_lamp(0);
+	while (elev_get_stop_signal()) {
+		elev_set_stop_lamp(1);
+        if (elev_get_floor_sensor_signal() != -1) {
+			open_door_timer();
+		}
+		elev_set_motor_direction(DIRN_STOP);
+		reset_orders();
 	}
-	else {
-		if (elev_get_floor_sensor_signal() != -1) {
-			open_door_timer();
-		}
-		while (elev_get_stop_signal()) {
-			elev_set_stop_lamp(1);
-			elev_set_motor_direction(DIRN_STOP);
-			reset_orders();
-			open_door_timer();
-		}
+    if (!elev_get_stop_signal()) {
+		elev_set_stop_lamp(0);
 	}
 }
 
@@ -141,12 +134,13 @@ void stop_signal_status(void) {
 
 void open_door_timer(void) {
     set_motor_direction(DIRN_STOP);
-    illuminate_lights();
 	clock_t start_t, current_t;
 	start_t = clock();
 	int msec = 0, trigger = 3000; // 3ms
 	do {
+        stop_signal_status();
         watch_buttons();
+        illuminate_lights();
 		elev_set_door_open_lamp(1);
 		current_t = clock() - start_t;
 		msec = current_t * 1000 / CLOCKS_PER_SEC;
