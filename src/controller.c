@@ -147,17 +147,10 @@ void open_door_timer(void) {
 
 //function that controll the movement of the elevator, and controll the orders
 void controll_elevator_orders(void) {
-/*open_door() {
-	if (elev_get_floor_sensor_signal() != -1) {
-		open_door_timer();
-		//
-	}
-}
-*/
-
   int comming_orders = 0;
-  motor_direction = DIRN_UP;
-  if (motor_direction == DIRN_UP && !comming_orders) {
+  motor_direction = get_motor_direction();
+  printf("%d\n", motor_direction);
+  if ((motor_direction == DIRN_UP || motor_direction == DIRN_STOP) && !comming_orders) {
     for (int i = previous_floor_sensor_signal; i < N_FLOORS; i++) {
       if(elev_get_floor_sensor_signal() != -1 && up_down_floor[previous_floor_sensor_signal][1]) {
         clear_current_floor(i);
@@ -169,7 +162,7 @@ void controll_elevator_orders(void) {
         comming_orders = 1;
       }
     }
-    for(int i = N_FLOORS-1; i > previous_floor_sensor_signal; i--) {
+    for(int i = N_FLOORS-1; i > previous_floor_sensor_signal && !comming_orders; i--) {
         if(elev_get_floor_sensor_signal() != -1 && up_down_floor[previous_floor_sensor_signal][0]) {
             clear_current_floor(i);
             open_door_timer();
@@ -185,24 +178,27 @@ void controll_elevator_orders(void) {
     }
   }
   if(motor_direction == DIRN_DOWN) {
-    for (int i = previous_floor_sensor_signal; i >= 0; i--) {
+      printf("%s\n", "motherfucker1------");
+    for(int i = previous_floor_sensor_signal; i >= 0; i--) {
       if(elev_get_floor_sensor_signal() > -1 && up_down_floor[previous_floor_sensor_signal][0]) {
           clear_current_floor(i);
           open_door_timer();
       }
       if(up_down_floor[i][0]) {
         set_motor_direction(DIRN_DOWN);
+        printf("%s\n", "motherfucker2------");
         // Hvis heisen er på grensen til ny etasje så skal den ikke snu.
         comming_orders = 1;
       }
     }
-    for(int i = 0; i < previous_floor_sensor_signal; i++) {
+    for(int i = 0; i < previous_floor_sensor_signal && !comming_orders; i++) {
         if(elev_get_floor_sensor_signal() != -1 && up_down_floor[previous_floor_sensor_signal][0]) {
             clear_current_floor(i);
             open_door_timer();
         }
-        if(up_down_floor[i][0]) {
+        if(up_down_floor[i][1]) {
           set_motor_direction(DIRN_DOWN);
+          printf("%s\n", "motherfucker3------");
           // Hvis heisen er på grensen til ny etasje så skal den ikke snu.
           comming_orders = 1;
         }
