@@ -9,9 +9,8 @@
 //declare pointer to array of orders
 static int up_down_floor[N_FLOORS][2] = {0};
 
-static int *previous_floor_sensor_signal = NULL;
+static int previous_floor_sensor_signal = NULL;
 static elev_motor_direction_t motor_direction = DIRN_STOP;
-static elev_motor_direction_t *motor_direction_ptr = &motor_direction;
 
 
 //set values to array of orders
@@ -39,24 +38,23 @@ void button_read(){
   }
 }
 
-int *get_up_down_floor(void){
-  return &up_down_floor[0][0];
+int get_up_down_floor(int floor, int direction){
+  return up_down_floor[floor][direction];
 }
 
 elev_motor_direction_t get_motor_direction(void) {
-  *motor_direction_ptr = DIRN_UP;
-  return *motor_direction_ptr;
+  return motor_direction;
 }
 
 void set_motor_direction(elev_motor_direction_t dirn) {
   elev_set_motor_direction(dirn);
-  *motor_direction_ptr = dirn;
+  motor_direction = dirn;
 }
 
-void set_previous_floor_sensor_signal(int *previous_floor_sensor_signal) {
+void set_previous_floor_sensor_signal(int previous_floor_sensor_signal) {
   int temp = elev_get_floor_sensor_signal();
   if(temp != -1) {
-    *previous_floor_sensor_signal = temp;
+    previous_floor_sensor_signal = temp;
   }
 }
 
@@ -95,9 +93,9 @@ void watch_buttons(void) {
 
 void controll_elevator_orders(void) {
   int comming_orders = 0;
-  *motor_direction_ptr = DIRN_UP;
-  if (*motor_direction_ptr == DIRN_UP && !comming_orders) {
-    for (int i = *previous_floor_sensor_signal; i < N_FLOORS; i++) {
+  motor_direction = DIRN_UP;
+  if (motor_direction == DIRN_UP && !comming_orders) {
+    for (int i = previous_floor_sensor_signal; i < N_FLOORS; i++) {
       if(elev_get_floor_sensor_signal() == up_down_floor[i][1]) {
         //åpne dør 3 sek og null ordelisten i etasje i
       }
@@ -108,11 +106,11 @@ void controll_elevator_orders(void) {
       }
     }
     if(!comming_orders) {
-      *motor_direction_ptr = DIRN_DOWN;
+      motor_direction = DIRN_DOWN;
     }
   }
-  if(*motor_direction_ptr == DIRN_DOWN) {
-    for (int i = *previous_floor_sensor_signal; i >= 0; i--) {
+  if(motor_direction == DIRN_DOWN) {
+    for (int i = previous_floor_sensor_signal; i >= 0; i--) {
       if(elev_get_floor_sensor_signal() > -1 && up_down_floor[i][0]) {
 
       }

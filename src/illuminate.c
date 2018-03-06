@@ -4,8 +4,8 @@
 #include "controller.h"
 #include "illuminate.h"
 
-// Funksjonen er skrevet med &. Tanken er at den skal ta inn en referanse
-void illuminate_lights(const int button_array[N_FLOORS][2], const int n_floors){
+
+void illuminate_lights(const int *button_array, const int n_floors){
 
   for (int current_floor = 0; current_floor < n_floors; current_floor++) {
 
