@@ -141,16 +141,17 @@ void stop_signal_status(void) {
 
 void open_door_timer(void) {
     set_motor_direction(DIRN_STOP);
+    illuminate_lights();
 	clock_t start_t, current_t;
 	start_t = clock();
-	int msec = 0, trigger = 1500; // 3ms
-    illuminate_lights();
+	int msec = 0, trigger = 3000; // 3ms
 	do {
-		io_set_bit(LIGHT_DOOR_OPEN);
+        watch_buttons();
+		elev_set_door_open_lamp(1);
 		current_t = clock() - start_t;
 		msec = current_t * 1000 / CLOCKS_PER_SEC;
 	} while (msec < trigger);
-	io_clear_bit(LIGHT_DOOR_OPEN);
+	elev_set_door_open_lamp(0);
 }
 
 /*;
@@ -165,12 +166,13 @@ void open_door_timer(void){
 //function that controll the movement of the elevator, and controll the orders
 void controll_elevator_orders(void) {
     watch_buttons();
+    print_up_down_floor_values();
   int comming_orders = 0;
   motor_direction = current_motor_direction;
   if ((motor_direction == DIRN_UP || motor_direction == DIRN_STOP)) {
     for (int i = previous_floor_sensor_signal; i < N_FLOORS; i++) {
       if((elev_get_floor_sensor_signal() != -1) && up_down_floor[elev_get_floor_sensor_signal()][1]) {
-        clear_current_floor(i);
+        clear_current_floor(elev_get_floor_sensor_signal());
         open_door_timer();
       }
       if(up_down_floor[i][1]) {
@@ -182,7 +184,7 @@ void controll_elevator_orders(void) {
 
     for(int i = N_FLOORS-1; i > previous_floor_sensor_signal && !comming_orders; i--) {
         if((elev_get_floor_sensor_signal() != -1) && up_down_floor[elev_get_floor_sensor_signal()][0]) {
-            clear_current_floor(i);
+            clear_current_floor(elev_get_floor_sensor_signal());
             open_door_timer();
         }
         if(up_down_floor[i][0]) {
@@ -198,7 +200,7 @@ void controll_elevator_orders(void) {
   if(motor_direction == DIRN_DOWN) {
     for(int i = previous_floor_sensor_signal; i >= 0; i--) {
       if((elev_get_floor_sensor_signal() != -1) && up_down_floor[elev_get_floor_sensor_signal()][0]) {
-          clear_current_floor(i);
+          clear_current_floor(elev_get_floor_sensor_signal());
           open_door_timer();
       }
       if(up_down_floor[i][0]) {
@@ -209,7 +211,7 @@ void controll_elevator_orders(void) {
     }
     for(int i = 0; i < previous_floor_sensor_signal && !comming_orders; i++) {
         if((elev_get_floor_sensor_signal() != -1) && up_down_floor[elev_get_floor_sensor_signal()][1]) {
-            clear_current_floor(i);
+            clear_current_floor(elev_get_floor_sensor_signal());
             open_door_timer();
         }
         if(up_down_floor[i][1]) {
@@ -218,6 +220,11 @@ void controll_elevator_orders(void) {
           comming_orders = 1;
         }
     }
+  }
+  if(elev_get_floor_sensor_signal() == 0 && !comming_orders){
+      set_motor_direction(DIRN_STOP);
+      clear_current_floor(elev_get_floor_sensor_signal());
+      open_door_timer();
   }
   /*
   if(!comming_orders) {
