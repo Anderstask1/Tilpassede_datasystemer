@@ -4,6 +4,7 @@
 #include "controller.h"
 #include "illuminate.h"
 
+
 #include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -14,6 +15,13 @@ static int up_down_floor[N_FLOORS][2] = {0};
 static int previous_floor_sensor_signal = 0;
 static elev_motor_direction_t motor_direction = DIRN_STOP;
 static int current_motor_direction = 0;
+
+// Get function
+int get_previous_floor_sensor_signal(void){
+  assert(previous_floor_sensor_signal >= 0);
+  assert(previous_floor_sensor_signal < N_FLOORS);
+  return previous_floor_sensor_signal;
+}
 
 //set values to array of orders
 void button_read(){
