@@ -36,3 +36,6 @@ void controll_elevator_orders(void);
 
 //delete orders in current floor
 void clear_current_floor (int current_floor);
+
+// Get function for illiminate.c
+int get_previous_floor_sensor_signal(void);

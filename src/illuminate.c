@@ -9,6 +9,11 @@
 // Funksjonen er skrevet med &. Tanken er at den skal ta inn en referanse
 void illuminate_lights(void){
 
+  // elev_set_floor_indicator setter lyset for etasje.
+  elev_set_floor_indicator(get_previous_floor_sensor_signal());
+
+
+  // Overvåker etasjematrisen og slål av/på lysene i henhold til matrisen
   for (int current_floor = 0; current_floor < N_FLOORS; current_floor++) {
 
     // int get_up_down_floor(int floor, int direction)
