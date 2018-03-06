@@ -2,8 +2,6 @@
 #include "elev.h"
 #include "io.h"
 #include "controller.h"
-#include "door.h"
-#include "stop.h"
 #include "illuminate.h"
 
 #include <time.h>
@@ -15,6 +13,7 @@
 static int up_down_floor[N_FLOORS][2] = {0};
 static int previous_floor_sensor_signal = 0;
 static elev_motor_direction_t motor_direction = DIRN_STOP;
+static int current_motor_direction = 0;
 
 //set values to array of orders
 void button_read(){
@@ -51,7 +50,7 @@ elev_motor_direction_t get_motor_direction(void) {
 
 void set_motor_direction(elev_motor_direction_t dirn) {
   elev_set_motor_direction(dirn);
-  motor_direction = dirn;
+  current_motor_direction = dirn;
 }
 
 void set_previous_floor_sensor_signal(void) {
@@ -140,7 +139,7 @@ void open_door_timer(void) {
 		io_set_bit(LIGHT_DOOR_OPEN);
 		current_t = clock() - start_t;
 		msec = current_t * 1000 / CLOCKS_PER_SEC;
-        elev_set_motor_direction(DIRN_STOP);
+        set_motor_direction(DIRN_STOP);
 	} while (msec < trigger);
 	io_clear_bit(LIGHT_DOOR_OPEN);
 }
@@ -148,8 +147,10 @@ void open_door_timer(void) {
 //function that controll the movement of the elevator, and controll the orders
 void controll_elevator_orders(void) {
   int comming_orders = 0;
-  motor_direction = get_motor_direction();
+  motor_direction = current_motor_direction;
   printf("%d\n", motor_direction);
+  printf("%s\n", "VVVVVVVVVVVVVVVV");
+  printf("%d\n", current_motor_direction);
   if ((motor_direction == DIRN_UP || motor_direction == DIRN_STOP) && !comming_orders) {
     for (int i = previous_floor_sensor_signal; i < N_FLOORS; i++) {
       if(elev_get_floor_sensor_signal() != -1 && up_down_floor[previous_floor_sensor_signal][1]) {
@@ -204,7 +205,12 @@ void controll_elevator_orders(void) {
         }
     }
   }
-  if(!comming_orders && elev_get_floor_sensor_signal() != 0) {
-    //kjør til 1. etasje for "parkering"
+  if(!comming_orders) {
+      printf("%s\n", "motherfucker4------");
+      if(elev_get_floor_sensor_signal() != 0){
+          set_motor_direction(DIRN_DOWN);
+      }else{
+          set_motor_direction(DIRN_STOP);
+      }
   }
 }

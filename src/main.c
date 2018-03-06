@@ -5,8 +5,7 @@
 #include "channels.h"
 #include "illuminate.h"
 #include "controller.h"
-#include "stop.h"
-#include "door.h"
+
 
 int main() {
     // Initialize hardware
