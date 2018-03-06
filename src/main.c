@@ -37,8 +37,6 @@ int main() {
 
       stop_signal_status();
 
-      print_up_down_floor_values();
-
         // Change direction when we reach top/bottom floor
         // if (elev_get_floor_sensor_signal() == N_FLOORS - 1) {
         //     elev_set_motor_direction(DIRN_DOWN);
@@ -53,9 +51,8 @@ int main() {
             break;
         }
 
-
         //print matrix for debugging
-        print_up_down_floor_values();
+        //print_up_down_floor_values();
     }
     return 0;
 }

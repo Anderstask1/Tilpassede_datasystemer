@@ -11,7 +11,7 @@ elev_motor_direction_t get_motor_direction(void);
 void set_motor_direction(elev_motor_direction_t dirn);
 
 //set value to variable previous_floor_sensor_signal
-void set_previous_floor_sensor_signal(int previous_floor_sensor_signal);
+void set_previous_floor_sensor_signal(void);
 
 //print matrix for debugging
 void print_up_down_floor_values(void);
