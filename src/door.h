@@ -4,11 +4,9 @@
 #include "elev.h"
 #include "io.h"
 #include "controller.c"
-#include "door.h"
 
 
 
-void stop_signal_status(void);
-void reset_orders();
-
+void open_door();
+void open_door_timer();
 
