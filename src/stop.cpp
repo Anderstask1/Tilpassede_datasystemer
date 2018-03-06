@@ -10,7 +10,7 @@ void stop_signal_status(void) {
 	}
 	else {
 		if (elev_get_floor_sensor_signal() != -1) {
-			open_door();
+			open_door_timer();
 		}
 		while (elev_get_stop_signal()) {
 			elev_set_stop_lamp(1);
