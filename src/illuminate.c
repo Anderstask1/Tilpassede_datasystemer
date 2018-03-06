@@ -2,6 +2,8 @@
 #include "elev.h"
 #include "io.h"
 #include "controller.h"
+#include "door.h"
+#include "stop.h"
 #include "illuminate.h"
 
 // Funksjonen er skrevet med &. Tanken er at den skal ta inn en referanse

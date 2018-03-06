@@ -1,10 +1,18 @@
-#include "door.h"
 #include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <stop.h>
+#include <assert.h>
 
-open_door_timer() {
+#include "channels.h"
+#include "elev.h"
+#include "io.h"
+#include "controller.h"
+#include "door.h"
+#include "stop.h"
+#include "illuminate.h"
+
+//åpner døren i 3 sek
+void open_door_timer(void) {
 	clock_t start_t, current_t;
 	start_t = clock();
 	int msec = 0, trigger = 3; // 3ms
@@ -14,17 +22,6 @@ open_door_timer() {
 
 		current_t = clock() - start_t;
 		msec = current_t * 1000 / CLOCKS_PER_SEC;
-		//iterations++;
 	} while (msec < trigger);
 	io_clear_bit(LIGHT_DOOR_OPEN);
-
 }
-
-/*open_door() {
-	if (elev_get_floor_sensor_signal() != -1) {
-		open_door_timer();
-		//
-	}
-}
-*/
-

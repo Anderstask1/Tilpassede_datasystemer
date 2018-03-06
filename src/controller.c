@@ -2,16 +2,19 @@
 #include "elev.h"
 #include "io.h"
 #include "controller.h"
+#include "door.h"
+#include "stop.h"
+#include "illuminate.h"
 
-#include <assert.h>
+#include <time.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <assert.h>
 
 //declare pointer to array of orders
 static int up_down_floor[N_FLOORS][2] = {0};
-
 static int previous_floor_sensor_signal = 0;
 static elev_motor_direction_t motor_direction = DIRN_STOP;
-
 
 //set values to array of orders
 void button_read(){
@@ -58,7 +61,7 @@ void set_previous_floor_sensor_signal(int previous_floor_sensor_signal) {
   }
 }
 
-//print matrix for debugging
+//print matrix for debugging#include "door.h"
 void print_up_down_floor_values(void) {
   for(int i = N_FLOORS-1; i >= 0; i--) {
       printf("%d", up_down_floor[i][0]);
@@ -77,7 +80,7 @@ void watch_buttons(void) {
         }
         if(button == BUTTON_CALL_UP && elev_get_button_signal(button,floor)) {
           up_down_floor[floor][1] = 1;
-        }
+      }
         if(button == BUTTON_COMMAND && elev_get_button_signal(button,floor)){
           if(floor == 1 || floor == 2 || floor == 3) {
             up_down_floor[floor][0] = 1;
@@ -91,12 +94,66 @@ void watch_buttons(void) {
   }
 }
 
+//reset current floor in up_down_floor matrix
 void clear_current_floor(int current_floor){
     up_down_floor[current_floor][0] = 0;
     up_down_floor[current_floor][1] = 0;
 }
 
+//reset entire up_down_floor matrix
+void reset_orders(void) {
+	for (int i = 0; i < N_FLOORS; i++) {
+		for (int j = 0; i < 2; i++) {
+			if ((i != 0 && j != 0) && (i != (N_FLOORS - 1) && j != 1)) {
+				up_down_floor[i][j] = 0;
+			}
+		}
+	}
+}
+
+//stopper heisen når stoppknappen er inne, og åpner dørene hvis den er i en etasje
+void stop_signal_status(void) {
+	if (!elev_get_stop_signal()) {
+		elev_set_stop_lamp(0);
+	}
+	else {
+		if (elev_get_floor_sensor_signal() != -1) {
+			open_door_timer();
+		}
+		while (elev_get_stop_signal()) {
+			elev_set_stop_lamp(1);
+			elev_set_motor_direction(DIRN_STOP);
+			reset_orders();
+			open_door_timer();
+		}
+	}
+}
+
+//åpner døren i 3 sek
+void open_door_timer(void) {
+	clock_t start_t, current_t;
+	start_t = clock();
+	int msec = 0, trigger = 3; // 3ms
+
+	do {
+		io_set_bit(LIGHT_DOOR_OPEN);
+
+		current_t = clock() - start_t;
+		msec = current_t * 1000 / CLOCKS_PER_SEC;
+	} while (msec < trigger);
+	io_clear_bit(LIGHT_DOOR_OPEN);
+}
+
+//function that controll the movement of the elevator, and controll the orders
 void controll_elevator_orders(void) {
+/*open_door() {
+	if (elev_get_floor_sensor_signal() != -1) {
+		open_door_timer();
+		//
+	}
+}
+*/
+
   int comming_orders = 0;
   motor_direction = DIRN_UP;
   if (motor_direction == DIRN_UP && !comming_orders) {
@@ -104,7 +161,7 @@ void controll_elevator_orders(void) {
       if(elev_get_floor_sensor_signal() == up_down_floor[i][1]) {
           clear_current_floor(i);
         //åpne dør 3 sek og null ordelisten i etasje i
-        
+
       }
       if(up_down_floor[i][1]) {
         set_motor_direction(DIRN_UP);

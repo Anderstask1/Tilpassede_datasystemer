@@ -5,7 +5,8 @@
 #include "channels.h"
 #include "illuminate.h"
 #include "controller.h"
-
+#include "stop.h"
+#include "door.h"
 
 int main() {
     // Initialize hardware
@@ -16,7 +17,7 @@ int main() {
 
     printf("Press STOP button to stop elevator and exit program.\n");
 
-    // elev_set_motor_direction(DIRN_UP); // Example code.
+    elev_set_motor_direction(DIRN_STOP); // Example code.
 
     //counter i
     int counter = 0;
@@ -34,6 +35,8 @@ int main() {
 
       controll_elevator_orders();
 
+      stop_signal_status();
+
       print_up_down_floor_values();
 
         // Change direction when we reach top/bottom floor
@@ -45,7 +48,7 @@ int main() {
 
         // Stop elevator and exit program if the stop button is pressed
         // The stop button is a little bit unstable. Some times it stops the program instantaneously
-        if (elev_get_stop_signal()) {
+        if (elev_get_obstruction_signal()) {
             elev_set_motor_direction(DIRN_STOP);
             break;
         }
