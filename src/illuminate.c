@@ -4,17 +4,15 @@
 #include "controller.h"
 #include "illuminate.h"
 
-// Funksjonen er skrevet med &. Tanken er at den skal ta inn en referanse
+// illuminate_lights controls both the floor indicator lights
+// and the button lamps.
 void illuminate_lights(void){
 
   // elev_set_floor_indicator setter lyset for etasje.
   elev_set_floor_indicator(get_previous_floor_sensor_signal());
 
-
   // Overvåker etasjematrisen og slål av/på lysene i henhold til matrisen
   for (int current_floor = 0; current_floor < N_FLOORS; current_floor++) {
-
-    // int get_up_down_floor(int floor, int direction)
 
     // Floor btn direction up
     if(current_floor < N_FLOORS-1) {
@@ -42,6 +40,9 @@ void illuminate_lights(void){
     }
 
     // Spesialtilfelle for nederste og øverste etasje.
+    // Dette er nødvendig pga matrisen vår en symetrisk.
+    // Dvs det er ikke mulig å tenne etasjelyset som skal videre
+    // oppover når man er i øverste etasje.
     if (get_up_down_floor(0, 1)){
         elev_set_button_lamp(BUTTON_COMMAND, 0, 1);
     } else {
