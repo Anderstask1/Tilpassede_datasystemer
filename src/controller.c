@@ -10,11 +10,21 @@
 #include <stdio.h>
 #include <assert.h>
 
+//initialize the elevator
+void initialize_elevator(void) {
+  reset_orders();
+  while(elev_get_floor_sensor_signal() == -1) {
+    set_motor_direction(DIRN_DOWN);
+  }
+  set_motor_direction(DIRN_STOP);
+}
+
 //declare pointer to array of orders
-static int up_down_floor[N_FLOORS][2] = {0};
+static int up_down_floor[N_FLOORS][2];
 static int previous_floor_sensor_signal = 0;
 static elev_motor_direction_t motor_direction = DIRN_STOP;
 static int current_motor_direction = 0;
+
 
 // Get function
 int get_previous_floor_sensor_signal(void){
@@ -32,7 +42,17 @@ void button_read(){
         if(button == BUTTON_CALL_DOWN && elev_get_button_signal(button,floor)) {
           up_down_floor[floor][0] = 1;
         }
-        if(button == BUTTON_CALL_UP && elev_get_button_signal(button,floor)) {
+    while (elev_get_stop_signal()) {
+  		elev_set_stop_lamp(1);
+          if (elev_get_floor_sensor_signal() != -1) {
+  			open_door_timer();
+  		}
+  		elev_set_motor_direction(DIRN_STOP);
+  		reset_orders();
+  	}
+      if (!elev_get_stop_signal()) {
+  		elev_set_stop_lamp(0);
+  	}    if(button == BUTTON_CALL_UP && elev_get_button_signal(button,floor)) {
           up_down_floor[floor][1] = 1;
       }
         if(button == BUTTON_COMMAND && elev_get_button_signal(button,floor)){
@@ -117,17 +137,19 @@ void reset_orders(void) {
 
 //stopper heisen når stoppknappen er inne, og åpner dørene hvis den er i en etasje
 void stop_signal_status(void) {
-	while (elev_get_stop_signal()) {
-		elev_set_stop_lamp(1);
-        if (elev_get_floor_sensor_signal() != -1) {
-			open_door_timer();
-		}
-		elev_set_motor_direction(DIRN_STOP);
-		reset_orders();
-	}
-    if (!elev_get_stop_signal()) {
-		elev_set_stop_lamp(0);
-	}
+  if(elev_get_stop_signal()) {
+  	while (elev_get_stop_signal()) {
+  		elev_set_stop_lamp(1);
+          if (elev_get_floor_sensor_signal() != -1) {
+  			open_door_timer();
+  		}
+  		elev_set_motor_direction(DIRN_STOP);
+  		reset_orders();
+  	}
+      if (!elev_get_stop_signal()) {
+  		elev_set_stop_lamp(0);
+  	}
+}
 }
 
 //åpner døren i 3 sek
@@ -177,14 +199,15 @@ void controll_elevator_orders(void) {
     }
 
     for(int i = N_FLOORS-1; i > previous_floor_sensor_signal && !comming_orders; i--) {
-        if((elev_get_floor_sensor_signal() != -1) && up_down_floor[elev_get_floor_sensor_signal()][0]) {
+        if((elev_get_floor_sensor_signal() != -1) && up_down_floor[elev_get_floor_sensor_signal()][0] && elev_get_floor_sensor_signal() == i) {
             clear_current_floor(elev_get_floor_sensor_signal());
             open_door_timer();
         }
         if(up_down_floor[i][0]) {
           set_motor_direction(DIRN_UP);
-          // Hvis heisen er på grensen til set_motor_direction(DIRN_STOP);ny etasje så skal den ikke snu.
           comming_orders = 1;
+          break;
+          // Hvis heisen er på grensen til set_motor_direction(DIRN_STOP);ny etasje så skal den ikke snu
         }
     }
     if(!comming_orders) {
@@ -204,14 +227,15 @@ void controll_elevator_orders(void) {
       }
     }
     for(int i = 0; i < previous_floor_sensor_signal && !comming_orders; i++) {
-        if((elev_get_floor_sensor_signal() != -1) && up_down_floor[elev_get_floor_sensor_signal()][1]) {
+        if((elev_get_floor_sensor_signal() != -1) && up_down_floor[elev_get_floor_sensor_signal()][1] && elev_get_floor_sensor_signal() == i) {
             clear_current_floor(elev_get_floor_sensor_signal());
             open_door_timer();
         }
         if(up_down_floor[i][1]) {
           set_motor_direction(DIRN_DOWN);
-          // Hvis heisen er på grensen til ny etasje så skal den ikke snu.
           comming_orders = 1;
+          break;
+          // Hvis heisen er på grensen til ny etasje så skal den ikke snu.
         }
     }
   }

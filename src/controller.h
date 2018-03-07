@@ -1,3 +1,6 @@
+//initialize the elevator
+// void initialize_elevator(void);
+
 //set values to array of orders
 void button_read();
 

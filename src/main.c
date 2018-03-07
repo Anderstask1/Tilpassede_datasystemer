@@ -6,7 +6,6 @@
 #include "illuminate.h"
 #include "controller.h"
 
-
 int main() {
     // Initialize hardware
     if (!elev_init()) {
@@ -16,10 +15,11 @@ int main() {
 
     printf("Press STOP button to stop elevator and exit program.\n");
 
-    elev_set_motor_direction(DIRN_STOP); // Example code.
+    // elev_set_motor_direction(DIRN_STOP); // Example code.
 
     //counter i
     int counter = 0;
+    initialize_elevator();
     while (1) {
 
       //counter while debug
