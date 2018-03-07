@@ -1,5 +1,8 @@
 //initialize the elevator
-// void initialize_elevator(void);
+void initialize_elevator(void);
+
+//finite state machine function
+void fsm(void);
 
 //set values to array of orders
 void button_read();
