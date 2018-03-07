@@ -28,6 +28,7 @@ void initialize_elevator(void) {
 
 void fsm(void) {
   // state = controll_elevator_orders();
+  printf("%d\n", state);
   switch (state) {
     case 0: //idle
       //check next order
@@ -60,7 +61,7 @@ void fsm(void) {
     case 3: //emergency
       //go to idle if not in floor
       //go to arrived floor if in floor
-      stop_signal_status();
+      state = stop_signal_status();
       break;
     default: //error
       printf("%s\n", "error101, no case");
@@ -205,7 +206,6 @@ void open_door_timer(void) {
   	start_t = clock();
   	int msec = 0, trigger = 3000; // 3ms
   	do {
-          stop_signal_status();
           watch_buttons();
           illuminate_lights();
   		elev_set_door_open_lamp(1);
@@ -219,8 +219,8 @@ void open_door_timer(void) {
 int check_for_orders(void) {
   for(int direction = 0; direction < 2; direction++) {
     for(int floors = 0; floors < N_FLOORS; floors++) {
-      if(up_down_floor[direction][floors]){
-      return 1; //go to move if order
+      if(up_down_floor[floors][direction]){
+        return 1; //go to move if order
       }
     }
   }
@@ -273,18 +273,26 @@ elev_motor_direction_t order_handler(void) {
 }
 
 int check_for_arrived(void) {
+  int state = 1;
   int comming_orders = 0;
   motor_direction = current_motor_direction;
   if ((motor_direction == DIRN_UP || motor_direction == DIRN_STOP)) {
     for (int i = previous_floor_sensor_signal; i < N_FLOORS; i++) {
       if((elev_get_floor_sensor_signal() != -1) && up_down_floor[elev_get_floor_sensor_signal()][1]) {
-        return 2; //switch to arrived-case
+        state = 2; //switch to arrived-case
+      }
+      if(up_down_floor[i][1]) {
+        // Hvis heisen er på grensen til ny etasje så skal den ikke snu.
+        comming_orders = 1;
       }
     }
 
     for(int i = N_FLOORS-1; i > previous_floor_sensor_signal && !comming_orders; i--) {
         if((elev_get_floor_sensor_signal() != -1) && up_down_floor[elev_get_floor_sensor_signal()][0] && elev_get_floor_sensor_signal() == i) {
-            return 2; //switch to arrived-case
+            state = 2; //switch to arrived-case
+        }
+        if(up_down_floor[i][0]) {
+          comming_orders = 1;
         }
     }
     if(!comming_orders) {
@@ -294,22 +302,27 @@ int check_for_arrived(void) {
   if(motor_direction == DIRN_DOWN) {
     for(int i = previous_floor_sensor_signal; i >= 0; i--) {
       if((elev_get_floor_sensor_signal() != -1) && up_down_floor[elev_get_floor_sensor_signal()][0]) {
-          return 2; //switch to arrived-case
+          state = 2; //switch to arrived-case
+      }
+      if(up_down_floor[i][0]) {
+        // Hvis heisen er på grensen til ny etasje så skal den ikke snu.
+        comming_orders = 1;
       }
     }
     for(int i = 0; i < previous_floor_sensor_signal && !comming_orders; i++) {
         if((elev_get_floor_sensor_signal() != -1) && up_down_floor[elev_get_floor_sensor_signal()][1] && elev_get_floor_sensor_signal() == i) {
-            return 2; //switch to arrived-case
+            state = 2; //switch to arrived-case
+        }
+        if(up_down_floor[i][1]) {
+          comming_orders = 1;
         }
     }
   }
   if(elev_get_floor_sensor_signal() == 0 && !comming_orders){
-      return 2; //switch to arrived-case
+      state = 2; //switch to arrived-case
+      comming_orders = 1;
   }
-  if(elev_get_floor_sensor_signal() == 0 && !comming_orders){
-      return 2; //switch to arrived-case
-  }
-  return 1; //stay in move-case
+  return state; //stay in move-case
 }
 
 int stop_handler(void) {
@@ -318,71 +331,3 @@ int stop_handler(void) {
   open_door_timer();
   return 0;
 }
-
-// //function that controll the movement of the elevator, and controll the orders
-// int controll_elevator_orders(void) {
-//     watch_buttons();
-//     print_up_down_floor_values();
-//   int comming_orders = 0;
-//   motor_direction = current_motor_direction;
-//   if ((motor_direction == DIRN_UP || motor_direction == DIRN_STOP)) {
-//     for (int i = previous_floor_sensor_signal; i < N_FLOORS; i++) {
-//       if((elev_get_floor_sensor_signal() != -1) && up_down_floor[elev_get_floor_sensor_signal()][1]) {
-//         clear_current_floor(elev_get_floor_sensor_signal());
-//         open_door_timer();
-//       }
-//       if(up_down_floor[i][1]) {
-//         set_motor_direction(DIRN_UP);
-//         // Hvis heisen er på grensen til ny etasje så skal den ikke snu.
-//         comming_orders = 1;
-//       }
-//     }
-//
-//     for(int i = N_FLOORS-1; i > previous_floor_sensor_signal && !comming_orders; i--) {
-//         if((elev_get_floor_sensor_signal() != -1) && up_down_floor[elev_get_floor_sensor_signal()][0] && elev_get_floor_sensor_signal() == i) {
-//             clear_current_floor(elev_get_floor_sensor_signal());
-//             open_door_timer();
-//         }
-//         if(up_down_floor[i][0]) {
-//           set_motor_direction(DIRN_UP);
-//           comming_orders = 1;
-//           break;
-//           // Hvis heisen er på grensen til set_motor_direction(DIRN_STOP);ny etasje så skal den ikke snu
-//         }
-//     }
-//     if(!comming_orders) {
-//       motor_direction = DIRN_DOWN;
-//     }
-//   }
-//   if(motor_direction == DIRN_DOWN) {
-//     for(int i = previous_floor_sensor_signal; i >= 0; i--) {
-//       if((elev_get_floor_sensor_signal() != -1) && up_down_floor[elev_get_floor_sensor_signal()][0]) {
-//           clear_current_floor(elev_get_floor_sensor_signal());
-//           open_door_timer();
-//       }
-//       if(up_down_floor[i][0]) {
-//         set_motor_direction(DIRN_DOWN);
-//         // Hvis heisen er på grensen til ny etasje så skal den ikke snu.
-//         comming_orders = 1;
-//       }
-//     }
-//     for(int i = 0; i < previous_floor_sensor_signal && !comming_orders; i++) {
-//         if((elev_get_floor_sensor_signal() != -1) && up_down_floor[elev_get_floor_sensor_signal()][1] && elev_get_floor_sensor_signal() == i) {
-//             clear_current_floor(elev_get_floor_sensor_signal());
-//             open_door_timer();
-//         }
-//         if(up_down_floor[i][1]) {
-//           set_motor_direction(DIRN_DOWN);
-//           comming_orders = 1;
-//           break;
-//           // Hvis heisen er på grensen til ny etasje så skal den ikke snu.
-//         }
-//     }
-//   }
-//   if(elev_get_floor_sensor_signal() == 0 && !comming_orders){
-//       set_motor_direction(DIRN_STOP);
-//       clear_current_floor(elev_get_floor_sensor_signal());
-//       open_door_timer();
-//   }
-//   return comming_orders;
-// }

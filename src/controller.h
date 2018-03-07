@@ -49,8 +49,6 @@ int check_for_arrived(void);
 //stop the elevator when arrived at ordered floor
 int stop_handler(void);
 
-//function that controll the movement of the elevator, and controll the orders
-// int controll_elevator_orders(void);
 
 //delete orders in current floor
 void clear_current_floor (int current_floor);
