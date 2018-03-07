@@ -17,13 +17,9 @@ int main() {
 
     // elev_set_motor_direction(DIRN_STOP); // Example code.
 
-    //counter i
-    int counter = 0;
     initialize_elevator();
-    while (1) {
 
-      //counter while debug
-      counter++;
+    while (1) {
 
       //print i for debugging
       //printf("While number %d\n", counter);
@@ -32,9 +28,11 @@ int main() {
 
       illuminate_lights();
 
-      controll_elevator_orders();
+      fsm();
 
-      stop_signal_status();
+      // controll_elevator_orders();
+
+      // stop_signal_status();
 
         // Change direction when we reach top/bottom floor
         // if (elev_get_floor_sensor_signal() == N_FLOORS - 1) {
@@ -42,7 +40,6 @@ int main() {
         // } else if (elev_get_floor_sensor_signal() == 0) {
         //     elev_set_motor_direction(DIRN_UP);
         // }
-
         // Stop elevator and exit program if the stop button is pressed
         // The stop button is a little bit unstable. Some times it stops the program instantaneously
         if (elev_get_obstruction_signal()) {

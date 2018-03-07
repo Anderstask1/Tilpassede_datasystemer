@@ -32,13 +32,25 @@ void clear_current_floor(int);
 void reset_orders(void);
 
 //stopper heisen når stoppknappen er inne, og åpner dørene hvis den er i en etasje
-void stop_signal_status(void);
+int stop_signal_status(void);
 
 //åpner døren i 3 sek
 void open_door_timer(void);
 
+//check if there is orders
+int check_for_orders(void);
+
+//controll the comming orders of elevator
+elev_motor_direction_t order_handler(void);
+
+//check if the elevator has arrived the floor ordered
+int check_for_arrived(void);
+
+//stop the elevator when arrived at ordered floor
+int stop_handler(void);
+
 //function that controll the movement of the elevator, and controll the orders
-void controll_elevator_orders(void);
+// int controll_elevator_orders(void);
 
 //delete orders in current floor
 void clear_current_floor (int current_floor);
