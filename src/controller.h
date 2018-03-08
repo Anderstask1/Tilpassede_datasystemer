@@ -4,9 +4,6 @@ void initialize_elevator(void);
 //finite state machine function
 void fsm(void);
 
-//set values to array of orders
-void button_read();
-
 //get values from array get_up_down_floor
 int get_up_down_floor();
 

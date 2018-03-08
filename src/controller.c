@@ -194,7 +194,8 @@ int check_for_orders(void) {
 }
 
 elev_motor_direction_t order_handler(void) {
-  elev_motor_direction_t next_direction;
+  elev_motor_direction_t next_direction = current_motor_direction;
+  printf("%d\n", next_direction );
   int comming_orders = 0;
   motor_direction = current_motor_direction;
   if ((motor_direction == DIRN_UP || motor_direction == DIRN_STOP)) {
@@ -214,7 +215,6 @@ elev_motor_direction_t order_handler(void) {
           next_direction = DIRN_UP;
           comming_orders = 1;
           break;
-          // Hvis heisen er på grensen til set_motor_direction(DIRN_STOP);ny etasje så skal den ikke snu
         }
     }
     if(!comming_orders) {
@@ -223,22 +223,21 @@ elev_motor_direction_t order_handler(void) {
   }
   if(motor_direction == DIRN_DOWN && !comming_orders) {
     for(int i = previous_floor_sensor_signal; i >= 0; i--) {
-      if(up_down_floor[i][0]) {
-        next_direction = DIRN_DOWN;
-        // Hvis heisen er på grensen til ny etasje så skal den ikke snu.
-        comming_orders = 1;
+        if(up_down_floor[i][0]) {
+            next_direction = DIRN_DOWN;
+            // Hvis heisen er på grensen til ny etasje så skal den ikke snu.
+            comming_orders = 1;
       }
     }
     for(int i = 0; i < previous_floor_sensor_signal && !comming_orders; i++) {
         if(up_down_floor[i][1]) {
-          next_direction = DIRN_DOWN;
-          comming_orders = 1;
-          break;
-          // Hvis heisen er på grensen til ny etasje så skal den ikke snu.
+            next_direction = DIRN_DOWN;
+            comming_orders = 1;
+            break;
+            // Hvis heisen er på grensen til ny etasje så skal den ikke snu.
         }
     }
   }
-  printf("%d\n", next_direction );
   return next_direction;
 }
 
