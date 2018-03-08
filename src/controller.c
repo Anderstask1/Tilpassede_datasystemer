@@ -15,6 +15,7 @@ static int previous_floor_sensor_signal = 0;
 static elev_motor_direction_t motor_direction = DIRN_STOP;
 static int current_motor_direction = 0;
 static int state =  0;
+static int emergency_handler = 0;
 
 //initialize the elevator
 void initialize_elevator(void) {
@@ -28,7 +29,6 @@ void initialize_elevator(void) {
 
 void fsm(void) {
   // state = controll_elevator_orders();
-  printf("%d\n", state);
   switch (state) {
     case 0: //idle
       //check next order
@@ -73,41 +73,6 @@ int get_previous_floor_sensor_signal(void){
   assert(previous_floor_sensor_signal >= 0);
   assert(previous_floor_sensor_signal < N_FLOORS);
   return previous_floor_sensor_signal;
-}
-
-//set values to array of orders
-void button_read(){
-  for(int button = 0; button < N_BUTTONS; button++){
-    for(int floor = 0; floor < N_FLOORS; floor++) {
-      if(!((floor == N_FLOORS-1 && button == BUTTON_CALL_UP) || (floor == 0 && button == BUTTON_CALL_DOWN))) {
-        //Impossible to call elevator up when on top, or call elevator down when on bottom
-        if(button == BUTTON_CALL_DOWN && elev_get_button_signal(button,floor)) {
-          up_down_floor[floor][0] = 1;
-        }
-    while (elev_get_stop_signal()) {
-  		elev_set_stop_lamp(1);
-          if (elev_get_floor_sensor_signal() != -1) {
-  			open_door_timer();
-  		}
-  		elev_set_motor_direction(DIRN_STOP);
-  		reset_orders();
-  	}
-      if (!elev_get_stop_signal()) {
-  		elev_set_stop_lamp(0);
-  	}    if(button == BUTTON_CALL_UP && elev_get_button_signal(button,floor)) {
-          up_down_floor[floor][1] = 1;
-      }
-        if(button == BUTTON_COMMAND && elev_get_button_signal(button,floor)){
-          if(floor == 1 || floor == 2 || floor == 3) {
-            up_down_floor[floor][0] = 1;
-          }
-          if(floor == 0 || floor == 1 || floor == 2) {
-            up_down_floor[floor][1] = 1;
-          }
-        }
-      }
-    }
-  }
 }
 
 int get_up_down_floor(int floor, int direction){
@@ -182,8 +147,8 @@ int stop_signal_status(void) {
   if(elev_get_stop_signal()) {
   	while (elev_get_stop_signal()) {
   		elev_set_stop_lamp(1);
-          if (elev_get_floor_sensor_signal() != -1) {
-  			open_door_timer();
+         if (elev_get_floor_sensor_signal() != -1) {
+    		elev_set_door_open_lamp(1);
   		}
   		elev_set_motor_direction(DIRN_STOP);
   		reset_orders();
@@ -193,6 +158,7 @@ int stop_signal_status(void) {
   	}
   }
   if(elev_get_floor_sensor_signal() == -1) {
+    emergency_handler = 1;
     return 0; //if elevator is not in a floor, go to idle
   }else{
     return 2; //if elevator is in floor, siwth to arrived
@@ -234,15 +200,18 @@ elev_motor_direction_t order_handler(void) {
   if ((motor_direction == DIRN_UP || motor_direction == DIRN_STOP)) {
     for (int i = previous_floor_sensor_signal; i < N_FLOORS; i++) {
       if(up_down_floor[i][1]) {
-        next_direction = DIRN_UP;
         // Hvis heisen er på grensen til ny etasje så skal den ikke snu.
         comming_orders = 1;
+        if(emergency_handler && previous_floor_sensor_signal == i){
+            next_direction = DIRN_DOWN;
+        }else{
+            next_direction = DIRN_UP;
+        }
       }
     }
     for(int i = N_FLOORS-1; i > previous_floor_sensor_signal && !comming_orders; i--) {
         if(up_down_floor[i][0]) {
           next_direction = DIRN_UP;
-          set_motor_direction(DIRN_UP);
           comming_orders = 1;
           break;
           // Hvis heisen er på grensen til set_motor_direction(DIRN_STOP);ny etasje så skal den ikke snu
@@ -252,7 +221,7 @@ elev_motor_direction_t order_handler(void) {
       motor_direction = DIRN_DOWN;
     }
   }
-  if(motor_direction == DIRN_DOWN) {
+  if(motor_direction == DIRN_DOWN && !comming_orders) {
     for(int i = previous_floor_sensor_signal; i >= 0; i--) {
       if(up_down_floor[i][0]) {
         next_direction = DIRN_DOWN;
@@ -269,6 +238,7 @@ elev_motor_direction_t order_handler(void) {
         }
     }
   }
+  printf("%d\n", next_direction );
   return next_direction;
 }
 
@@ -321,6 +291,9 @@ int check_for_arrived(void) {
   if(elev_get_floor_sensor_signal() == 0 && !comming_orders){
       state = 2; //switch to arrived-case
       comming_orders = 1;
+  }
+  if(state == 2){
+    emergency_handler = 0;
   }
   return state; //stay in move-case
 }
