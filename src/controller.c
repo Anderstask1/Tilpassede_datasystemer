@@ -16,6 +16,7 @@ static elev_motor_direction_t motor_direction = DIRN_STOP;
 static int current_motor_direction = 0;
 static int state =  0;
 static int emergency_handler = 0;
+static elev_motor_direction_t emergency_motor_direction = DIRN_STOP;
 
 //initialize the elevator
 void initialize_elevator(void) {
@@ -160,7 +161,8 @@ int stop_signal_status(void) {
   	}
   }
   if(elev_get_floor_sensor_signal() == -1) {
-    emergency_handler = 1;
+      emergency_motor_direction = current_motor_direction;
+      emergency_handler = 1;
     return 0; //if elevator is not in a floor, go to idle
   }else{
     return 2; //if elevator is in floor, siwth to arrived
@@ -199,20 +201,26 @@ elev_motor_direction_t order_handler(void) {
   elev_motor_direction_t next_direction = 0;
   int comming_orders = 0;
   motor_direction = current_motor_direction;
+  // Direction up or stop
   if ((motor_direction == DIRN_UP || motor_direction == DIRN_STOP)) {
     for (int i = previous_floor_sensor_signal; i < N_FLOORS; i++) {
-      if(up_down_floor[i][1]) {
-        // Hvis heisen er på grensen til ny etasje så skal den ikke snu.
-        comming_orders = 1;
-        if(emergency_handler && previous_floor_sensor_signal == i){
+        if(emergency_handler && emergency_motor_direction == DIRN_UP && up_down_floor[i][0] && emergency_motor_direction != DIRN_DOWN){
             next_direction = DIRN_DOWN;
-        }else{
-            next_direction = DIRN_UP;
+            comming_orders = 1;
+            break;
         }
-      }
+        if(up_down_floor[i][1]) {
+            // Hvis heisen er på grensen til ny etasje så skal den ikke snu.
+            comming_orders = 1;
+            if(emergency_handler && previous_floor_sensor_signal == i && emergency_motor_direction == DIRN_UP){
+                next_direction = DIRN_DOWN;
+            }else{
+                next_direction = DIRN_UP;
+            }
+        }
     }
     for(int i = N_FLOORS-1; i >= previous_floor_sensor_signal && !comming_orders; i--) {
-        if(up_down_floor[i][0]) {
+        if(up_down_floor[i][0] && !emergency_handler) {
           next_direction = DIRN_UP;
           comming_orders = 1;
           break;
@@ -222,13 +230,17 @@ elev_motor_direction_t order_handler(void) {
       motor_direction = DIRN_DOWN;
     }
   }
+  // Direction down
   if(motor_direction == DIRN_DOWN && !comming_orders) {
     for(int i = previous_floor_sensor_signal; i >= 0; i--) {
         if(up_down_floor[i][0]) {
             // Hvis heisen er på grensen til ny etasje så skal den ikke snu.
             comming_orders = 1;
-            if(emergency_handler && previous_floor_sensor_signal == i){
+            if(emergency_handler && previous_floor_sensor_signal == i && !up_down_floor[i][1] && emergency_motor_direction != DIRN_UP){
                 next_direction = DIRN_UP;
+            }else if(emergency_handler && emergency_motor_direction == DIRN_DOWN && up_down_floor[i][1]){
+                next_direction = DIRN_UP;
+                comming_orders = 1;
             }else{
                 next_direction = DIRN_DOWN;
             }
