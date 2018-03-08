@@ -194,7 +194,7 @@ int check_for_orders(void) {
 }
 
 elev_motor_direction_t order_handler(void) {
-  elev_motor_direction_t next_direction = current_motor_direction;
+  elev_motor_direction_t next_direction = 0;
   printf("%d\n", next_direction );
   int comming_orders = 0;
   motor_direction = current_motor_direction;
@@ -298,7 +298,8 @@ int check_for_arrived(void) {
 }
 
 int stop_handler(void) {
-  set_motor_direction(DIRN_STOP);
+    // Do not clean current_motor_direction in this function.
+  elev_set_motor_direction(DIRN_STOP);
   clear_current_floor(elev_get_floor_sensor_signal());
   open_door_timer();
   return 0;
