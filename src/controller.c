@@ -144,6 +144,8 @@ void reset_orders(void) {
 
 //stopper heisen når stoppknappen er inne, og åpner dørene hvis den er i en etasje
 int stop_signal_status(void) {
+    reset_orders();
+    illuminate_lights();
   if(elev_get_stop_signal()) {
   	while (elev_get_stop_signal()) {
   		elev_set_stop_lamp(1);
@@ -172,8 +174,8 @@ void open_door_timer(void) {
   	start_t = clock();
   	int msec = 0, trigger = 3000; // 3ms
   	do {
-          watch_buttons();
-          illuminate_lights();
+        watch_buttons();
+        illuminate_lights();
   		elev_set_door_open_lamp(1);
   		current_t = clock() - start_t;
   		msec = current_t * 1000 / CLOCKS_PER_SEC;
