@@ -1,10 +1,3 @@
-# Heislab SingSing
+# Tilpassede datasystemer -elevator project
 
-Sykt kult prosjekt
-
-
-
-### Tester
-
-
-* Heisen må stå i en etsajen før den kan starte å kjøre.
+Lab project related to the subject at NTNU named "Tilpassede datasystemer". This project implement the logic of controlling a single elevator. 
